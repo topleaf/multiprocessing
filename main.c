@@ -16,7 +16,7 @@
 // for share memory use
 
 
-#define SEMAPHORE_MAX_NUM 2
+#define SEMAPHORE_MAX_NUM 1
 
 //
 //void *work_thread(void *name){
@@ -90,37 +90,41 @@ int main(){
     printf("Memory attached at %X\n", (unsigned int)shared_mutex);    //设置共享内存
     pMutex = (sem_t *) shared_mutex;  // mutex is now setup in shared memory
 
-    re = sem_init(pMutex,1,SEMAPHORE_MAX_NUM);
-    if (re==-1)
-    {
-        printf("sem_init error");
-    }
+//    re = sem_init(pMutex,1,SEMAPHORE_MAX_NUM);
+//    if (re==-1)
+//    {
+//        printf("sem_init error");
+//    }
 
-    sem_wait(pMutex);
+//    sem_wait(pMutex);
 
     pId = (int *)shared_counter;
     *pId = 0;
     printf("shared_counter=%d",*pId);
-    sem_post(pMutex);
+//    sem_post(pMutex);
 
-    child_id = fork();
-    if (child_id){
-        printf("\nparent is running,pid=%d",getpid());
+    for (int i=0;i<20;i++){
+        child_id = fork();
+        if (child_id){
+            printf("\nparent is running,pid=%d",getpid());
+        }
+        else{
+            printf("\nchild is running,pid=%d,ppid=%d",getpid(),getppid());
+        }
     }
-    else{
-        printf("\nchild is running,pid=%d,ppid=%d",getpid(),getppid());
-    }
+
+
     for (int i=0;i<7;i++){
-        sem_wait(pMutex);
+//        sem_wait(pMutex);
         count++;
         *pId=*pId+1;
         printf("\nhello %d,i=%d,count=%d,shared_count=%d",getpid(),i,count,*pId);
 
-        sem_post(pMutex);
-        sleep(2);
+//        sem_post(pMutex);
+        sleep(0.1);
     }
     printf("\nend of process %d",getpid());
-    sem_destroy(pMutex);
+//    sem_destroy(pMutex);
 
     if (shmdt(shared_mutex)==-1){
         printf("\n shmdt failed for shared_mutex in process %d",getpid());
